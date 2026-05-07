@@ -6,6 +6,8 @@
 <title>El Mahdi ALOUI — Ingénieur Fullstack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('WY60342yLXwQ9-yku');</script>
 <style>
   :root {
     --bg: #080c14;
@@ -1091,7 +1093,7 @@
       <div class="about-text reveal">
         <div class="section-label">à propos</div>
         <h2 class="section-title">Qui suis-<span class="accent">je ?</span></h2>
-        <p class="about-desc">Passionné par la technologie depuis toujours, je suis El Mahdi — étudiant ingénieur à l\'EILCO (Calais). Né à Chefchaouen au Maroc, je parle 4 langues et je code avec la même passion que je vis.</p>
+        <p class="about-desc">Passionné par la technologie depuis toujours, je suis El Mahdi — étudiant ingénieur à l'EILCO (Calais). Né à Chefchaouen au Maroc, je parle 4 langues et je code avec la même passion que je vis.</p>
         <p class="about-desc">Mon moteur ? Concevoir des solutions qui ont un vrai impact — des CRM mobiles aux dashboards IoT, du développement Agile chez CGI à la configuration réseau chez Maroc Telecom.</p>
         <p class="about-desc" style="color:var(--accent3); font-weight:500;">📍 Calais, France &nbsp;·&nbsp; 🎂 13/06/2001 &nbsp;·&nbsp; 🔍 Alternance dès Septembre 2026</p>
       </div>
@@ -1452,9 +1454,7 @@
           <textarea rows="5" placeholder="Bonjour El Mahdi, nous avons une opportunité d'alternance..."></textarea>
         </div>
         <button class="form-submit" id="sendBtn" onclick="sendEmail()">Envoyer le message →</button>
-        <div id="form-feedback" style="margin-top:12px; font-size:0.85rem; color:var(--accent3); display:none; text-align:center;">
-          ✅ Votre client mail va s'ouvrir — merci !
-        </div>
+        <div id="form-feedback" style="margin-top:12px; font-size:0.85rem; display:none; text-align:center; padding: 12px; border-radius: 8px;"></div>
       </div>
     </div>
   </div>
@@ -1529,19 +1529,57 @@
     card.style.transitionDelay = i * 0.1 + 's';
   });
 
-  // sendEmail via mailto
+  // EmailJS send
   function sendEmail() {
-    const name = document.querySelector('input[type="text"]').value.trim();
-    const email = document.querySelector('input[type="email"]').value.trim();
-    const msg = document.querySelector('textarea').value.trim();
+    const nameEl  = document.querySelector('input[type="text"]');
+    const emailEl = document.querySelector('input[type="email"]');
+    const msgEl   = document.querySelector('textarea');
+    const btn     = document.getElementById('sendBtn');
+    const fb      = document.getElementById('form-feedback');
+
+    const name  = nameEl.value.trim();
+    const email = emailEl.value.trim();
+    const msg   = msgEl.value.trim();
+
     if (!name || !email || !msg) {
-      alert('Merci de remplir tous les champs 📝');
+      fb.style.display = 'block';
+      fb.style.background = 'rgba(226,75,74,0.1)';
+      fb.style.border = '1px solid rgba(226,75,74,0.3)';
+      fb.style.color = '#f09595';
+      fb.textContent = '⚠️ Merci de remplir tous les champs.';
       return;
     }
-    const subject = encodeURIComponent('Opportunité d\'alternance – ' + name);
-    const body = encodeURIComponent('Bonjour El Mahdi,\n\n' + msg + '\n\nCordialement,\n' + name + '\n' + email);
-    window.location.href = 'mailto:el-mahdi.aloui@etu.eilco.univ-littoral.fr?subject=' + subject + '&body=' + body;
-    document.getElementById('form-feedback').style.display = 'block';
+
+    btn.textContent = 'Envoi en cours...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    emailjs.send('service_734j5qu', 'template_a99dlu7', {
+      from_name:  name,
+      from_email: email,
+      message:    msg
+    })
+    .then(() => {
+      fb.style.display = 'block';
+      fb.style.background = 'rgba(0,255,179,0.08)';
+      fb.style.border = '1px solid rgba(0,255,179,0.25)';
+      fb.style.color = 'var(--accent3)';
+      fb.textContent = '✅ Message envoyé avec succès ! Je vous répondrai très vite.';
+      nameEl.value = ''; emailEl.value = ''; msgEl.value = '';
+      btn.textContent = 'Message envoyé ✓';
+      btn.style.background = 'linear-gradient(135deg, #00ffb3, #00c2ff)';
+    })
+    .catch((err) => {
+      fb.style.display = 'block';
+      fb.style.background = 'rgba(226,75,74,0.1)';
+      fb.style.border = '1px solid rgba(226,75,74,0.3)';
+      fb.style.color = '#f09595';
+      fb.textContent = '❌ Erreur lors de l\'envoi. Réessayez ou contactez-moi directement par email.';
+      btn.textContent = 'Envoyer le message →';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      console.error('EmailJS error:', err);
+    });
   }
   window.addEventListener('scroll', () => {
     const sections = document.querySelectorAll('section[id]');
